@@ -21,6 +21,6 @@ export class App implements OnInit {
       error: (error) => {
         console.error('API health check failed:', error);
       }
-    });
+    }); 
   }
 }
