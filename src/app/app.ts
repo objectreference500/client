@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, Signal, signal } from '@angular/core';
 import { Nav } from '../nav/nav';
+import { AccountService } from '../core/services/account-service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -9,17 +11,32 @@ import { Nav } from '../nav/nav';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
+  private accountService = inject(AccountService);
   private http = inject(HttpClient);
-  protected readonly title = signal('client');
-  protected profiles: any;
-  ngOnInit(): void {
-    this.http.get<any>('http://localhost:5172/api/profile/profiles').subscribe({
-      next: (profiles) => {
-        this.profiles = profiles;
-      },
-      error: (err) => {
-        console.error('Failed to load profiles:', err);
-      },
-    });
+  protected readonly title = signal('Matrimonial');
+  protected members = signal<any>([]);
+
+  async ngOnInit(){
+    this.members.set(await this.getProfiles())
+    this.setCurrentuser();
   }
+
+  setCurrentuser(){
+    const userString = localStorage.getItem('user');
+    if(!userString) return;
+    const user = JSON.parse(userString);
+    this.accountService.currentUser.set(user);
+  }
+
+  async getProfiles(){
+    try{
+      return lastValueFrom(this.http.get('http://localhost:5172/api/profile/profiles'));
+    }
+    catch(error){
+      console.log(error);
+      throw error;
+    }
+
+  }
+
 }

@@ -10,14 +10,21 @@ import { single } from 'rxjs';
   styleUrl: './nav.css',
 })
 export class Nav {
-  private account = inject(AccountService);
+  protected account = inject(AccountService);
   protected creds: any = {};
   protected loggedIn = signal(false);
 
   login() {
    this.account.login(this.creds).subscribe({
-    next: result =>console.log(result),
+    next: result =>{
+      console.log(result);
+      this.creds = {};
+    },
     error:error => alert(error.message)
    })
+  }
+
+  logout(){
+    this.account.logout();
   }
 }
