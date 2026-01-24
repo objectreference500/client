@@ -1,21 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RegisterCreds } from '../../../types/User';
+import { AccountService } from '../../../core/services/account-service';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class Register {
+  private accountService = inject(AccountService);
+  cancelRegister = output<boolean>();
   protected creds = {} as RegisterCreds;
 
-  register(){
-    console.log(this.creds);
+  register() {
+   this.accountService.register(this.creds).subscribe({
+    next: (response: any) =>{
+      console.log(response);
+      this.cancel();
+    },
+    error:(error: any) =>console.log(error)
+   })
   }
 
-  cancel(){
-    console.log('cancelled')
+  cancel() {
+    this.cancelRegister.emit(false);
+    console.log('cancelled');
   }
 }
